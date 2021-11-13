@@ -7,7 +7,11 @@ import {
   GraphQLString,
 } from "graphql";
 
+import { v4 as uuidv4 } from "uuid";
+import * as bcrypt from "bcryptjs";
+
 import db from "./../db/db";
+import generateToken from "../services/authHelpers";
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -64,6 +68,21 @@ const TransactionType: GraphQLObjectType = new GraphQLObjectType({
   }),
 });
 
+const AuthPayloadType = new GraphQLObjectType({
+  name: "Authpayload",
+  fields: () => ({
+    token: {
+      type: GraphQLString,
+    },
+    message: {
+      type: GraphQLString,
+    },
+    user: {
+      type: UserType,
+    },
+  }),
+});
+
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
@@ -83,7 +102,42 @@ const RootQuery = new GraphQLObjectType({
     },
   },
 });
+const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    registerUser: {
+      type: AuthPayloadType,
+      args: {
+        email: {
+          type: GraphQLString,
+        },
+        password: {
+          type: GraphQLString,
+        },
+      },
+      async resolve(parent, { email, password }) {
+        const id = uuidv4();
+        await db("user").insert({
+          id,
+          email,
+          password: await bcrypt.hash(password, 10),
+        });
+
+        const token = generateToken(id, email);
+        return {
+          token,
+          user: {
+            id,
+            email,
+          },
+          message: "user registered correctly",
+        };
+      },
+    },
+  },
+});
 
 export default new GraphQLSchema({
   query: RootQuery,
+  mutation: Mutation,
 });
