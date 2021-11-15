@@ -1,8 +1,6 @@
 import { randomUUID } from "crypto";
 import { Knex } from "knex";
 
-console.log(new Date("2020-01-08T19:47:00.000Z"));
-
 export async function seed(knex: Knex): Promise<void> {
   await knex("transaction").del();
   await knex("user").del();

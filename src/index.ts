@@ -1,7 +1,7 @@
+const config = require("../config.js");
 import * as express from "express";
 import { graphqlHTTP } from "express-graphql";
 import * as jwt from "express-jwt";
-import { resolve } from "path/posix";
 import schema from "./schema/schema";
 
 const app = express();
@@ -9,7 +9,7 @@ const app = express();
 app.use(
   "/protected",
   jwt({
-    secret: "UjfP:QUcG9x?W95XM3w39Z9Q/;56qxx-3nx<Oj8%m33e{vvENJgpAf*Q`_xDEM",
+    secret: JSON.stringify(config.JWT_TOKEN),
     algorithms: ["HS256"],
   }),
   (req, res) => {
@@ -27,6 +27,6 @@ app.use(
   })
 );
 
-app.listen(4000, () => {
-  console.log("Server listening on port 4000.");
+app.listen(config.PORT, () => {
+  console.log(`Server listening on port ${config.PORT}.`);
 });

@@ -1,8 +1,9 @@
 import knex from "knex";
 import configs from "./knexfile";
+const config = require("../../config");
 
-const config = configs[process.env.NODE_ENV || "development"];
+const knexConfig = configs[config.NODE_ENV || "development"];
 
-const db = knex(config);
+const db = knex(knexConfig);
 
 export default db;
